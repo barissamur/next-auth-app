@@ -1,32 +1,31 @@
 "use client";
 
-import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useState } from "react";
 
-export default function Home() {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
-    const result = await signIn("credentials", {
+    const res = await signIn("credentials", {
+      redirect: true,
       email,
       password,
-      callbackUrl: "/dashboard",
     });
 
-    if (!result?.ok) {
-      setError("Login failed. Please check your email and password.");
+    if (res?.error) {
+      setError(res.error);
     }
   };
 
   return (
     <div>
       <h1>Login</h1>
-      <form onSubmit={handleSignIn}>
+      <form onSubmit={handleSubmit}>
         <div>
           <label>Email:</label>
           <input
@@ -45,16 +44,9 @@ export default function Home() {
             required
           />
         </div>
-        <button type="submit">Sign in</button>
+        <button type="submit">Sign In</button>
       </form>
       {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <div style={{ marginTop: "20px" }}>
-        <p>Or sign in with:</p>
-        <button onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
-          Sign in with Google
-        </button>
-      </div>
     </div>
   );
 }
